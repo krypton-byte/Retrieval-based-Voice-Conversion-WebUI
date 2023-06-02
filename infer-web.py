@@ -6,6 +6,34 @@ from time import sleep
 import torch, os, traceback, sys, warnings, shutil, numpy as np
 import faiss
 from random import shuffle
+import os
+from pathlib import Path
+from ptyprocess import PtyProcess
+
+if not Path('audio_venv').exists():
+    os.system('python3 -m venv audio_venv')
+    os.system('wget https://bootstrap.pypa.io/get-pip.py')
+    os.system('audio_venv/bin/python3 get-pip.py')
+
+def audio_click_listener(
+    name,
+    mode,
+    url,
+    drive
+):
+    if url or drive:
+        if url:  # Youtube
+            pty = PtyProcess.spawn([f'{Path(__file__).parent.absolute()}/audio_venv/bin/python3', f'{Path(__file__).parent.absolute()}/audio_spliting.py', '-n', name, '-m', mode, 'Youtube', '-u', url])
+        elif drive:  # Drive
+            pty = PtyProcess.spawn([f'{Path(__file__).parent.absolute()}/audio_venv/bin/python3', f'{Path(__file__).parent.absolute()}/audio_spliting.py', '-n', name, '-m', mode, 'Drive', 'Drive', '-p', drive])
+    stdout = ""
+    while True:
+        try:
+            stdout += pty.read(1024).decode()
+            stdout = '\n'.join(stdout.split('\n')[-20:])
+            yield stdout
+        except Exception:
+            break
 
 now_dir = os.getcwd()
 sys.path.append(now_dir)
@@ -1516,7 +1544,21 @@ with gr.Blocks() as app:
                     [ckpt_path2, save_name, sr__, if_f0__, info___],
                     info7,
                 )
-
+        with gr.TabItem("Audio"):
+            with gr.Row():
+                with gr.Column():
+                    name = gr.Textbox(label="Name")
+                    mode = gr.Radio(["Splitting", "Separate"], label="Mode")
+                    with gr.Row():
+                        with gr.Column():
+                            gr.Markdown("Youtube")
+                            url = gr.Textbox(placeholder="youtube.com/watch?v=....", label="Youtube URL")
+                        with gr.Column():
+                            gr.Markdown("Drive")
+                            drive = gr.Text(placeholder="/content/...", label="Path")
+                    logs = gr.TextArea(label="Logs", max_lines=20, placeholder="Logs.....")
+                    btn = gr.Button("Execute")
+                    btn.click(audio_click_listener, inputs=[name, mode, url, drive], outputs=logs, queue=True)
         with gr.TabItem(i18n("Onnx导出")):
             with gr.Row():
                 ckpt_dir = gr.Textbox(label=i18n("RVC模型路径"), value="", interactive=True)
