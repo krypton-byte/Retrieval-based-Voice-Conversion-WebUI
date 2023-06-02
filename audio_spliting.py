@@ -52,7 +52,7 @@ except Exception:
 import subprocess
 AUDIO_INPUT = f"{Path(__file__).parent.absolute()}/youtubeaudio/{parsed.n}.wav"
 command = f"{sys.executable} -m demucs --two-stems=vocals " + (
-    parsed.p if parsed.dataset == "Drive" else AUDIO_INPUT
+    parsed.p.name if parsed.dataset == "Drive" else AUDIO_INPUT
 )
 result = subprocess.run(command.split(), stdout=subprocess.PIPE)
 print(result.stdout.decode())
