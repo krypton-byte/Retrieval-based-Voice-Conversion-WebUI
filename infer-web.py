@@ -25,7 +25,7 @@ def audio_click_listener(
         if url:  # Youtube
             pty = PtyProcess.spawn([f'{Path(__file__).parent.absolute()}/audio_venv/bin/python3', f'{Path(__file__).parent.absolute()}/audio_spliting.py', '-n', name, '-m', mode, 'Youtube', '-u', url])
         elif drive:  # Drive
-            pty = PtyProcess.spawn([f'{Path(__file__).parent.absolute()}/audio_venv/bin/python3', f'{Path(__file__).parent.absolute()}/audio_spliting.py', '-n', name, '-m', mode, 'Drive', 'Drive', '-p', drive])
+            pty = PtyProcess.spawn([f'{Path(__file__).parent.absolute()}/audio_venv/bin/python3', f'{Path(__file__).parent.absolute()}/audio_spliting.py', '-n', name, '-m', mode, 'Drive', '-p', drive])
     stdout = ""
     while True:
         try:
